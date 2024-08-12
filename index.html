@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Note-Taking App</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app">
+        <h1>Offline Note-Taking App</h1>
+        <textarea id="note" placeholder="Type your note here..."></textarea>
+        <button id="saveNote">Save Note</button>
+        <ul id="notesList"></ul>
+    </div>
+    <!-- Load idb as an ES module -->
+    <script type="module">
+        import { openDB } from 'https://unpkg.com/idb@7.0.1?module';
+
+        // Function to open the database
+        async function openDatabase() {
+            return openDB('notes-db', 1, {
+                upgrade(db) {
+                    if (!db.objectStoreNames.contains('notes')) {
+                        db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                    }
+                },
+            });
+        }
+
+        // Function to save a note to the database
+        async function saveNoteToDB(note) {
+            const db = await openDatabase();
+            const tx = db.transaction('notes', 'readwrite');
+            const store = tx.objectStore('notes');
+            await store.put(note);
+            await tx.done;
+        }
+
+        // Function to get all notes from the database
+        async function getAllNotesFromDB() {
+            const db = await openDatabase();
+            const tx = db.transaction('notes', 'readonly');
+            const store = tx.objectStore('notes');
+            return store.getAll();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const noteTextarea = document.getElementById('note');
+            const saveNoteButton = document.getElementById('saveNote');
+            const notesList = document.getElementById('notesList');
+
+            // Load existing notes
+            getAllNotesFromDB().then(notes => {
+                notes.forEach(note => {
+                    addNoteToList(note);
+                });
+            });
+
+            // Save note
+            saveNoteButton.addEventListener('click', () => {
+                const noteText = noteTextarea.value.trim();
+                if (noteText) {
+                    const note = { text: noteText, timestamp: Date.now() };
+                    saveNoteToDB(note).then(() => {
+                        addNoteToList(note);
+                        noteTextarea.value = '';
+                    });
+                }
+            });
+
+            function addNoteToList(note) {
+                const li = document.createElement('li');
+                li.textContent = note.text;
+                notesList.appendChild(li);
+            }
+        });
+    </script>
+</body>
+</html>
