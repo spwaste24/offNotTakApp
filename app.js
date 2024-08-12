@@ -44,8 +44,8 @@ function showNotification(title, body) {
         navigator.serviceWorker.ready.then(function(registration) {
             registration.showNotification(title, {
                 body: body,
-                icon: 'icons/icon-192x192.png',
-                badge: 'icons/icon-72x72.png'
+                // icon: 'icons/icon-192x192.png',
+                // badge: 'icons/icon-72x72.png'
             });
         });
     }
