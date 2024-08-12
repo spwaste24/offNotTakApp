@@ -13,7 +13,12 @@
         <textarea id="note" placeholder="Type your note here..."></textarea>
         <button id="saveNote">Save Note</button>
         <ul id="notesList"></ul>
-    </div>
+
+        <h1>PWA Timer</h1>
+        <button id="startTimer">Start Timer for 10 seconds</button>
+        <script src="app.js"></script>
+    </div>    
+
     <!-- Load idb as an ES module -->
     <script type="module">
         import { openDB } from 'https://unpkg.com/idb@7.0.1?module';
@@ -76,6 +81,7 @@
                 notesList.appendChild(li);
             }
         });
+        
     </script>
 </body>
 </html>
